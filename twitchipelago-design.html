@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Twitchipelago Hints — Propuesta de Proyecto</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:        #0d0f1a;
+      --bg2:       #13162a;
+      --bg3:       #1a1e35;
+      --border:    rgba(255,255,255,0.07);
+      --purple:    #9147ff;
+      --purple2:   #772ce8;
+      --teal:      #00d4aa;
+      --gold:      #f5c542;
+      --danger:    #ff4c6a;
+      --text:      #e8eaf6;
+      --muted:     #8892b0;
+      --radius:    14px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 80px 24px;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 50% 0%,   rgba(145,71,255,.35) 0%, transparent 70%),
+        radial-gradient(ellipse 60% 50% at 10% 80%,  rgba(0,212,170,.18) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 90% 80%,  rgba(245,197,66,.12) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(145,71,255,.15);
+      border: 1px solid rgba(145,71,255,.4);
+      color: #bf9dff;
+      font-size: .75rem;
+      font-weight: 600;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      padding: 6px 16px;
+      border-radius: 999px;
+      margin-bottom: 28px;
+      animation: fadeUp .6s ease both;
+    }
+    .hero h1 {
+      font-size: clamp(2.8rem, 8vw, 6rem);
+      font-weight: 900;
+      letter-spacing: -.03em;
+      line-height: 1.05;
+      animation: fadeUp .7s ease .1s both;
+    }
+    .hero h1 span.grad {
+      background: linear-gradient(135deg, #9147ff 0%, #00d4aa 60%, #f5c542 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-sub {
+      max-width: 640px;
+      margin: 24px auto 48px;
+      font-size: 1.15rem;
+      color: var(--muted);
+      animation: fadeUp .7s ease .2s both;
+    }
+    .hero-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+      animation: fadeUp .7s ease .3s both;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 10px 20px;
+      border-radius: 999px;
+      font-size: .9rem;
+      font-weight: 600;
+      border: 1px solid;
+    }
+    .pill-purple { background: rgba(145,71,255,.12); border-color: rgba(145,71,255,.4); color: #bf9dff; }
+    .pill-teal   { background: rgba(0,212,170,.1);   border-color: rgba(0,212,170,.35);  color: #6ffadf; }
+    .pill-gold   { background: rgba(245,197,66,.1);  border-color: rgba(245,197,66,.35); color: #ffe083; }
+
+    /* ── SCROLL ARROW ── */
+    .scroll-hint {
+      position: absolute;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      color: var(--muted);
+      font-size: .75rem;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      animation: fadeUp 1s ease .8s both;
+    }
+    .scroll-hint svg { animation: bounce 1.6s infinite; }
+    @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(6px)} }
+
+    /* ── SECTION ── */
+    section {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 100px 24px;
+    }
+    .section-label {
+      font-size: .72rem;
+      font-weight: 700;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: var(--purple);
+      margin-bottom: 12px;
+    }
+    .section-title {
+      font-size: clamp(1.7rem, 4vw, 2.8rem);
+      font-weight: 800;
+      letter-spacing: -.02em;
+      margin-bottom: 16px;
+    }
+    .section-desc {
+      color: var(--muted);
+      font-size: 1.05rem;
+      max-width: 600px;
+      margin-bottom: 56px;
+    }
+
+    /* ── PROBLEM CARDS ── */
+    .problem-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+    }
+    .problem-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      position: relative;
+      overflow: hidden;
+      transition: transform .25s, border-color .25s;
+    }
+    .problem-card:hover { transform: translateY(-4px); border-color: rgba(145,71,255,.35); }
+    .problem-card .icon {
+      font-size: 2rem;
+      margin-bottom: 16px;
+      display: block;
+    }
+    .problem-card h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; }
+    .problem-card p  { font-size: .9rem; color: var(--muted); }
+    .problem-card::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--purple), var(--teal));
+      opacity: 0;
+      transition: opacity .25s;
+    }
+    .problem-card:hover::after { opacity: 1; }
+
+    /* ── ARCH DIAGRAM ── */
+    .arch-box {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 40px;
+    }
+    .arch-flow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      flex-wrap: wrap;
+    }
+    .arch-node {
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px 24px;
+      text-align: center;
+      min-width: 160px;
+      transition: border-color .25s;
+    }
+    .arch-node:hover { border-color: var(--purple); }
+    .arch-node .n-icon { font-size: 1.8rem; margin-bottom: 8px; }
+    .arch-node .n-title { font-size: .85rem; font-weight: 700; }
+    .arch-node .n-sub { font-size: .75rem; color: var(--muted); margin-top: 4px; }
+    .arch-arrow {
+      color: var(--purple);
+      font-size: 1.4rem;
+      padding: 0 12px;
+      margin: 12px 0;
+    }
+
+    /* ── PANEL PREVIEW ── */
+    .panel-sections {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+    .panel-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: transform .25s, border-color .25s;
+    }
+    .panel-card:hover { transform: translateY(-4px); border-color: rgba(0,212,170,.35); }
+    .panel-card-header {
+      padding: 16px 20px;
+      background: var(--bg3);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: .9rem;
+    }
+    .panel-card-header .dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+    }
+    .panel-card-body { padding: 20px; }
+
+    /* mock UI elements */
+    .mock-input {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: .8rem;
+      color: var(--muted);
+      margin-bottom: 10px;
+      font-family: 'JetBrains Mono', monospace;
+      width: 100%;
+    }
+    .mock-label {
+      font-size: .72rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      margin-bottom: 6px;
+      display: block;
+    }
+    .mock-table { width: 100%; border-collapse: collapse; font-size: .8rem; }
+    .mock-table th {
+      color: var(--muted);
+      font-weight: 600;
+      font-size: .7rem;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      padding: 6px 8px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    .mock-table td {
+      padding: 8px;
+      border-bottom: 1px solid rgba(255,255,255,.04);
+      color: var(--text);
+    }
+    .mock-tag {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: .7rem;
+      font-weight: 600;
+    }
+    .tag-on  { background: rgba(0,212,170,.15); color: #6ffadf; border: 1px solid rgba(0,212,170,.3); }
+    .tag-off { background: rgba(255,76,106,.1);  color: #ff8099; border: 1px solid rgba(255,76,106,.2); }
+    .mock-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      border-radius: 8px;
+      font-size: .78rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      margin-top: 4px;
+    }
+    .btn-green { background: rgba(0,212,170,.2); color: #6ffadf; border: 1px solid rgba(0,212,170,.35); }
+    .btn-red   { background: rgba(255,76,106,.1); color: #ff8099; border: 1px solid rgba(255,76,106,.25); }
+
+    /* ── FEATURES ── */
+    .feat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+    }
+    .feat-item {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px 20px;
+      text-align: center;
+      transition: transform .25s, border-color .25s;
+    }
+    .feat-item:hover { transform: translateY(-3px); border-color: rgba(245,197,66,.3); }
+    .feat-item .f-icon { font-size: 2rem; margin-bottom: 12px; }
+    .feat-item h4 { font-size: .95rem; font-weight: 700; margin-bottom: 6px; }
+    .feat-item p  { font-size: .82rem; color: var(--muted); }
+
+    /* ── PHASES ── */
+    .phase-list { display: flex; flex-direction: column; gap: 16px; }
+    .phase-item {
+      display: grid;
+      grid-template-columns: 48px 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+    .phase-num {
+      width: 48px; height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      font-weight: 900;
+      border: 2px solid;
+      flex-shrink: 0;
+      position: relative;
+    }
+    .phase-num.p1 { background: rgba(145,71,255,.15); border-color: rgba(145,71,255,.5); color: #bf9dff; }
+    .phase-num.p2 { background: rgba(0,212,170,.1);   border-color: rgba(0,212,170,.4);  color: #6ffadf; }
+    .phase-num.p3 { background: rgba(245,197,66,.1);  border-color: rgba(245,197,66,.4); color: #ffe083; }
+    .phase-num.p4 { background: rgba(255,76,106,.1);  border-color: rgba(255,76,106,.4); color: #ff8099; }
+    .phase-num.p5 { background: rgba(255,255,255,.05);border-color: rgba(255,255,255,.2);color: var(--text); }
+    .phase-body {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+    }
+    .phase-body h3 { font-size: 1rem; font-weight: 700; margin-bottom: 8px; }
+    .phase-body ul { list-style: none; }
+    .phase-body ul li {
+      font-size: .88rem;
+      color: var(--muted);
+      padding: 4px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .phase-body ul li::before {
+      content: '→';
+      color: var(--purple);
+      font-weight: 700;
+    }
+
+    /* ── TECH STACK ── */
+    .stack-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+    }
+    .stack-item {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .stack-icon { font-size: 1.6rem; }
+    .stack-info h4 { font-size: .9rem; font-weight: 700; }
+    .stack-info p  { font-size: .78rem; color: var(--muted); }
+
+    /* ── DELIVERY ── */
+    .delivery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+    .delivery-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      transition: transform .25s;
+    }
+    .delivery-card.recommended {
+      border-color: rgba(145,71,255,.5);
+      background: linear-gradient(135deg, rgba(145,71,255,.08) 0%, var(--bg2) 100%);
+    }
+    .delivery-card:hover { transform: translateY(-4px); }
+    .rec-badge {
+      display: inline-block;
+      background: var(--purple);
+      color: white;
+      font-size: .65rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 999px;
+      margin-bottom: 14px;
+    }
+    .delivery-card h3 { font-size: 1.1rem; font-weight: 800; margin-bottom: 8px; }
+    .delivery-card p  { font-size: .88rem; color: var(--muted); margin-bottom: 16px; }
+    .delivery-card ul { list-style: none; }
+    .delivery-card ul li {
+      font-size: .85rem;
+      color: var(--muted);
+      padding: 3px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .delivery-card ul li::before { content: '✓'; color: var(--teal); font-weight: 700; }
+
+    /* ── CTA ── */
+    .cta-section {
+      text-align: center;
+      padding: 100px 24px;
+      background: linear-gradient(180deg, transparent 0%, rgba(145,71,255,.06) 50%, transparent 100%);
+    }
+    .cta-title { font-size: clamp(1.8rem, 5vw, 3.2rem); font-weight: 900; letter-spacing: -.03em; margin-bottom: 16px; }
+    .cta-sub { color: var(--muted); font-size: 1rem; margin-bottom: 40px; }
+    .cta-btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+    .cta-btn {
+      padding: 14px 32px;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 700;
+      text-decoration: none;
+      transition: transform .2s, opacity .2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .cta-btn:hover { transform: translateY(-2px); opacity: .9; }
+    .cta-primary   { background: var(--purple); color: white; }
+    .cta-secondary { background: var(--bg2); color: var(--text); border: 1px solid var(--border); }
+
+    /* ── DIVIDER ── */
+    .divider {
+      border: none;
+      height: 1px;
+      background: var(--border);
+      margin: 0 24px;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center;
+      padding: 32px 24px;
+      color: var(--muted);
+      font-size: .8rem;
+    }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0);    }
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity .6s ease, transform .6s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── HIGHLIGHT CODE ── */
+    pre {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .8rem;
+      color: #a8b2d8;
+      overflow-x: auto;
+      margin-top: 16px;
+    }
+    .json-key   { color: #79b8ff; }
+    .json-str   { color: #9ecbff; }
+    .json-num   { color: #f8c555; }
+    .json-bool  { color: #f97583; }
+    .json-punct { color: var(--muted); }
+
+    @media (max-width: 600px) {
+      .arch-flow { flex-direction: column; }
+      .arch-arrow { transform: rotate(90deg); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════ HERO ══════════════ -->
+<div class="hero">
+  <div class="hero-badge">🏝️ Propuesta de Proyecto · 2026</div>
+  <h1>Twitch<span class="grad">ipelago</span><br/>Hints</h1>
+  <p class="hero-sub">
+    El chat de Twitch toma el control. Usando <strong>bits y donaciones</strong>,
+    los espectadores desbloquean hints e ítems en partidas de <strong>Archipelago</strong>,
+    sin que el organizador toque una sola línea de código.
+  </p>
+  <div class="hero-pills">
+    <span class="pill pill-purple">🎮 Archipelago</span>
+    <span class="pill pill-teal">💜 Twitch Bits</span>
+    <span class="pill pill-gold">⚙️ Sin código</span>
+  </div>
+  <div class="scroll-hint" style="margin-top:40px;position:relative;bottom:auto;left:auto;transform:none;">
+    Scroll para explorar
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <path d="M12 5v14M5 12l7 7 7-7"/>
+    </svg>
+  </div>
+</div>
+
+<hr class="divider"/>
+
+<!-- ══════════════ PROBLEMA ══════════════ -->
+<section>
+  <p class="section-label reveal">El Problema</p>
+  <h2 class="section-title reveal">¿Qué falta hoy en los streams de Archipelago?</h2>
+  <p class="section-desc reveal">Las herramientas actuales no conectan la audiencia con la partida. El chat mira —pero no participa.</p>
+
+  <div class="problem-grid">
+    <div class="problem-card reveal">
+      <span class="icon">🔇</span>
+      <h3>Hints nativos desactivados</h3>
+      <p>En eventos de streaming se suele desactivar el sistema nativo de hints para darle más tensión a la partida.</p>
+    </div>
+    <div class="problem-card reveal">
+      <span class="icon">📺</span>
+      <h3>Chat desconectado</h3>
+      <p>Los espectadores solo pueden ver, sin capacidad de influir en el desarrollo del juego ni ayudar al streamer.</p>
+    </div>
+    <div class="problem-card reveal">
+      <span class="icon">🛠️</span>
+      <h3>Configuración técnica compleja</h3>
+      <p>Hoy no existe una solución accesible, lista para usar, que conecte Twitch con Archipelago sin editar código.</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider"/>
+
+<!-- ══════════════ SOLUCIÓN ══════════════ -->
+<section>
+  <p class="section-label reveal">La Solución</p>
+  <h2 class="section-title reveal">Cómo funciona Twitchipelago Hints</h2>
+  <p class="section-desc reveal">Un bot que escucha el chat de múltiples streamers al mismo tiempo y ejecuta recompensas automáticamente en el servidor de Archipelago.</p>
+
+  <div class="arch-box reveal">
+    <div class="arch-flow">
+      <div class="arch-node">
+        <div class="n-icon">💬</div>
+        <div class="n-title">Chat de Twitch</div>
+        <div class="n-sub">Dona bits o dinero</div>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node">
+        <div class="n-icon">🤖</div>
+        <div class="n-title">Bot Python</div>
+        <div class="n-sub">Escucha N canales</div>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node">
+        <div class="n-icon">⚙️</div>
+        <div class="n-title">Validación</div>
+        <div class="n-sub">Costo · Cooldown · Tipo</div>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node">
+        <div class="n-icon">🏝️</div>
+        <div class="n-title">Archipelago</div>
+        <div class="n-sub">Ejecuta hint o ítem</div>
+      </div>
+      <div class="arch-arrow">→</div>
+      <div class="arch-node">
+        <div class="n-icon">📢</div>
+        <div class="n-title">Respuesta</div>
+        <div class="n-sub">Confirma en el chat</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider"/>
+
+<!-- ══════════════ PANEL WEB ══════════════ -->
+<section>
+  <p class="section-label reveal">Panel de Configuración</p>
+  <h2 class="section-title reveal">Todo desde el navegador, sin tocar código</h2>
+  <p class="section-desc reveal">El cliente configura cada aspecto del sistema a través de un panel HTML. La configuración se guarda automáticamente.</p>
+
+  <div class="panel-sections">
+
+    <!-- Servidor -->
+    <div class="panel-card reveal">
+      <div class="panel-card-header">
+        <div class="dot" style="background:#ff5f57"></div>
+        <div class="dot" style="background:#febc2e"></div>
+        <div class="dot" style="background:#28c840"></div>
+        &nbsp; 🌐 Servidor Archipelago
+      </div>
+      <div class="panel-card-body">
+        <label class="mock-label">URL del servidor</label>
+        <div class="mock-input">archipelago.gg:38281</div>
+        <label class="mock-label">Contraseña</label>
+        <div class="mock-input">••••••••••</div>
+        <label class="mock-label">Nombre del bot</label>
+        <div class="mock-input">TwitchipelagoBot</div>
+      </div>
+    </div>
+
+    <!-- Jugadores -->
+    <div class="panel-card reveal">
+      <div class="panel-card-header">
+        <div class="dot" style="background:#ff5f57"></div>
+        <div class="dot" style="background:#febc2e"></div>
+        <div class="dot" style="background:#28c840"></div>
+        &nbsp; 🎮 Jugadores y Canales
+      </div>
+      <div class="panel-card-body">
+        <table class="mock-table">
+          <tr><th>Canal Twitch</th><th>Jugador AP</th><th></th></tr>
+          <tr><td>streamer1</td><td>Mario</td><td>🗑️</td></tr>
+          <tr><td>streamer2</td><td>Link</td><td>🗑️</td></tr>
+          <tr><td>streamer3</td><td>Samus</td><td>🗑️</td></tr>
+          <tr><td colspan="3" style="color:#9147ff;font-size:.78rem;padding-top:10px;cursor:pointer">+ Agregar fila</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- Recompensas -->
+    <div class="panel-card reveal">
+      <div class="panel-card-header">
+        <div class="dot" style="background:#ff5f57"></div>
+        <div class="dot" style="background:#febc2e"></div>
+        <div class="dot" style="background:#28c840"></div>
+        &nbsp; 💎 Recompensas y Costos
+      </div>
+      <div class="panel-card-body">
+        <table class="mock-table">
+          <tr><th>Recompensa</th><th>Bits</th><th>Estado</th></tr>
+          <tr><td>Hint aleatorio</td><td>200</td><td><span class="mock-tag tag-on">ON</span></td></tr>
+          <tr><td>Hint específico</td><td>500</td><td><span class="mock-tag tag-on">ON</span></td></tr>
+          <tr><td>Enviar ítem</td><td>2000</td><td><span class="mock-tag tag-off">OFF</span></td></tr>
+        </table>
+        <div style="margin-top:14px;display:flex;gap:8px">
+          <button class="mock-btn btn-green">▶ Iniciar Bot</button>
+          <button class="mock-btn btn-red">⏹ Detener</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<hr class="divider"/>
+
+<!-- ══════════════ FEATURES ══════════════ -->
+<section>
+  <p class="section-label reveal">Características</p>
+  <h2 class="section-title reveal">Todo lo que incluye</h2>
+  <p class="section-desc reveal" style="margin-bottom:36px"></p>
+
+  <div class="feat-grid">
+    <div class="feat-item reveal">
+      <div class="f-icon">📡</div>
+      <h4>Multi-canal</h4>
+      <p>Conecta N canales de Twitch simultáneamente en un solo bot</p>
+    </div>
+    <div class="feat-item reveal">
+      <div class="f-icon">🗺️</div>
+      <h4>Mapeo canal → jugador</h4>
+      <p>El chat del streamer X afecta al jugador X en Archipelago</p>
+    </div>
+    <div class="feat-item reveal">
+      <div class="f-icon">⏱️</div>
+      <h4>Cooldowns</h4>
+      <p>Límite de tiempo entre recompensas para evitar abuso</p>
+    </div>
+    <div class="feat-item reveal">
+      <div class="f-icon">💬</div>
+      <h4>Respuesta en chat</h4>
+      <p>El bot confirma cada recompensa directamente en el canal</p>
+    </div>
+    <div class="feat-item reveal">
+      <div class="f-icon">🔧</div>
+      <h4>Sin código</h4>
+      <p>Toda la configuración se hace desde el panel HTML</p>
+    </div>
+    <div class="feat-item reveal">
+      <div class="f-icon">📋</div>
+      <h4>Log en tiempo real</h4>
+      <p>Historial de eventos y recompensas ejecutadas durante el stream</p>
+    </div>
+  </div>
+</section>
+
+<hr class="divider"/>
+
+<!-- ══════════════ FASES ══════════════ -->
+<section>
+  <p class="section-label reveal">Roadmap</p>
+  <h2 class="section-title reveal">Plan de desarrollo por fases</h2>
+  <p class="section-desc reveal">Desarrollo incremental para entregar valor rápido desde la primera fase.</p>
+
+  <div class="phase-list">
+    <div class="phase-item reveal">
+      <div class="phase-num p1">1</div>
+      <div class="phase-body">
+        <h3>MVP — Un canal, hint aleatorio</h3>
+        <ul>
+          <li>Bot escucha bits en un canal de Twitch</li>
+          <li>Conexión básica al servidor Archipelago</li>
+          <li>Ejecuta <code style="font-family:monospace;color:#9147ff">!hint</code> aleatorio al recibir la cantidad correcta</li>
+        </ul>
+      </div>
+    </div>
+    <div class="phase-item reveal">
+      <div class="phase-num p2">2</div>
+      <div class="phase-body">
+        <h3>Multi-canal y configuración</h3>
+        <ul>
+          <li>Soporte para N canales simultáneos</li>
+          <li>Mapa canal ↔ jugador funcional</li>
+          <li>Lectura de config.json generado por el panel</li>
+        </ul>
+      </div>
+    </div>
+    <div class="phase-item reveal">
+      <div class="phase-num p3">3</div>
+      <div class="phase-body">
+        <h3>Panel Web HTML</h3>
+        <ul>
+          <li>Formulario completo de configuración en el navegador</li>
+          <li>Guardado automático de config.json</li>
+          <li>Botón iniciar/detener el bot y log en vivo</li>
+        </ul>
+      </div>
+    </div>
+    <div class="phase-item reveal">
+      <div class="phase-num p4">4</div>
+      <div class="phase-body">
+        <h3>Recompensas avanzadas</h3>
+        <ul>
+          <li>Hint de ítem o ubicación específica (el chat escribe el nombre)</li>
+          <li>Envío directo de ítems (requiere admin en el servidor)</li>
+          <li>Sistema de cooldown configurable por tipo de recompensa</li>
+        </ul>
+      </div>
+    </div>
+    <div class="phase-item reveal">
+      <div class="phase-num p5">5</div>
+      <div class="phase-body">
+        <h3>Pulido y entrega</h3>
+        <ul>
+          <li>Documentación de uso (guía de 5 pasos)</li>
+          <li>Empaquetado para Railway o ejecutable local</li>
+          <li>Prueba en vivo con partida real</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider"/>
+
+<!-- ══════════════ TECH ══════════════ -->
+<section>
+  <p class="section-label reveal">Stack Tecnológico</p>
+  <h2 class="section-title reveal">Simple, probado y extensible</h2>
+  <p class="section-desc reveal" style="margin-bottom:36px"></p>
+
+  <div class="stack-grid">
+    <div class="stack-item reveal">
+      <span class="stack-icon">🐍</span>
+      <div class="stack-info">
+        <h4>Python 3.11</h4>
+        <p>Núcleo del bot y lógica de negocio</p>
+      </div>
+    </div>
+    <div class="stack-item reveal">
+      <span class="stack-icon">💜</span>
+      <div class="stack-info">
+        <h4>twitchio</h4>
+        <p>Integración nativa con la API de Twitch</p>
+      </div>
+    </div>
+    <div class="stack-item reveal">
+      <span class="stack-icon">🌐</span>
+      <div class="stack-info">
+        <h4>HTML + JS Vanilla</h4>
+        <p>Panel de configuración sin frameworks</p>
+      </div>
+    </div>
+    <div class="stack-item reveal">
+      <span class="stack-icon">🔌</span>
+      <div class="stack-info">
+        <h4>WebSockets</h4>
+        <p>Protocolo nativo de Archipelago</p>
+      </div>
+    </div>
+    <div class="stack-item reveal">
+      <span class="stack-icon">📄</span>
+      <div class="stack-info">
+        <h4>JSON</h4>
+        <p>Configuración legible y editable</p>
+      </div>
+    </div>
+    <div class="stack-item reveal">
+      <span class="stack-icon">🚂</span>
+      <div class="stack-info">
+        <h4>Railway (opcional)</h4>
+        <p>Deploy con un click, siempre activo</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider"/>
+
+<!-- ══════════════ ENTREGA ══════════════ -->
+<section>
+  <p class="section-label reveal">Forma de Entrega</p>
+  <h2 class="section-title reveal">Elige cómo desplegarlo</h2>
+  <p class="section-desc reveal">Tres opciones según el perfil del cliente.</p>
+
+  <div class="delivery-grid">
+    <div class="delivery-card recommended reveal">
+      <div class="rec-badge">⭐ Recomendada</div>
+      <h3>☁️ Railway</h3>
+      <p>El bot corre en la nube, siempre activo. El panel es accesible desde cualquier navegador vía URL pública.</p>
+      <ul>
+        <li>Sin PC corriendo durante el stream</li>
+        <li>URL pública para el panel</li>
+        <li>Deploy con un click desde GitHub</li>
+        <li>Requiere cuenta gratuita en Railway</li>
+      </ul>
+    </div>
+    <div class="delivery-card reveal">
+      <h3>🖥️ Local</h3>
+      <p>El cliente abre <code style="font-family:monospace;color:#9147ff">index.html</code> y corre el bot en su propia PC durante el stream.</p>
+      <ul>
+        <li>Sin cuentas externas</li>
+        <li>Control total del cliente</li>
+        <li>Requiere Python instalado</li>
+        <li>La PC debe estar encendida</li>
+      </ul>
+    </div>
+    <div class="delivery-card reveal">
+      <h3>📦 Ejecutable .exe</h3>
+      <p>Todo empaquetado con PyInstaller. Doble click para usar, sin instalar nada.</p>
+      <ul>
+        <li>Máxima simplicidad</li>
+        <li>Sin instalaciones</li>
+        <li>Sin línea de comandos</li>
+        <li>Solo compatible con Windows</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<hr class="divider"/>
+
+<!-- ══════════════ CTA ══════════════ -->
+<div class="cta-section">
+  <div class="hero-badge" style="animation:none">🚀 ¿Listo para empezar?</div>
+  <h2 class="cta-title">Dale a tu chat el poder<br/>de cambiar la partida</h2>
+  <p class="cta-sub">Twitchipelago Hints convierte espectadores pasivos en participantes activos.</p>
+  <div class="cta-btns">
+    <a href="#" class="cta-btn cta-primary">▶ Arrancar con el MVP</a>
+    <a href="#" class="cta-btn cta-secondary">📋 Ver el roadmap completo</a>
+  </div>
+</div>
+
+<!-- ══════════════ FOOTER ══════════════ -->
+<footer>
+  <p>Twitchipelago Hints · Propuesta 2026 · Diseño y desarrollo a medida</p>
+</footer>
+
+<script>
+  // Reveal on scroll
+  const reveals = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  reveals.forEach(el => io.observe(el));
+</script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+# Credenciales — nunca subir al repo
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+venv/
+env/
+.venv/
+
+# Logs
+*.log
+
+# Databases (Local State)
+*.db
+
+# Frontend
+panel/node_modules/
+panel/dist/
+public_state.json

@@ -1,0 +1,192 @@
+# 🏝️ Twitchipelago Hints — Documento de Diseño
+
+**Versión:** 1.0  
+**Fecha:** Marzo 2026  
+**Estado:** Propuesta
+
+---
+
+## Descripción General
+
+**Twitchipelago Hints** es una herramienta pensada para grupos de streamers que juegan partidas de **Archipelago** en conjunto. El sistema reemplaza el mecanismo nativo de hints del juego por un sistema interactivo donde el **chat de Twitch** puede desbloquear hints e ítems mediante **bits o donaciones**.
+
+El cliente configura todo desde un **panel web local** (HTML), sin necesidad de editar código ni archivos de configuración manualmente.
+
+---
+
+## Problema que Resuelve
+
+En las partidas de Archipelago, los hints permiten a los jugadores saber dónde están sus ítems. En un contexto de streaming, esto puede usarse como **mecánica de entretenimiento**: el chat invierte bits o donaciones para ayudar al jugador, aumentando la participación y el engagement de la audiencia.
+
+El problema actual es que no existe una herramienta lista para usar que:
+- Conecte múltiples canales de Twitch a jugadores específicos de Archipelago.
+- Permita configurar costos y tipos de recompensas sin tocar código.
+- Funcione de forma autónoma durante el stream.
+
+---
+
+## Público Objetivo
+
+- Grupos de streamers que organizan eventos de Archipelago.
+- Organizadores de torneos o maratones de streams colaborativos.
+- No requiere conocimientos técnicos del lado del cliente.
+
+---
+
+## Arquitectura del Sistema
+
+```
+┌──────────────────────────────────────────────────┐
+│              Panel Web (HTML local)               │
+│  - Configuración de servidor Archipelago          │
+│  - Mapeo Canal Twitch ↔ Jugador                   │
+│  - Tabla de costos de recompensas                 │
+│  - Inicio / Detención del bot                     │
+└────────────────────┬─────────────────────────────┘
+                     │ genera config.json
+                     ▼
+┌──────────────────────────────────────────────────┐
+│                  Bot Python                       │
+│  - Escucha bits/donaciones en N canales Twitch    │
+│  - Valida recompensa según config                 │
+│  - Ejecuta hint/envío en servidor Archipelago     │
+│  - Responde en el chat del streamer               │
+└──────────────────────────────────────────────────┘
+```
+
+---
+
+## Panel de Configuración (HTML)
+
+El panel corre en el navegador del cliente (`index.html` abierto localmente o en Railway). Tiene tres secciones:
+
+### 1. Servidor Archipelago
+
+| Campo | Descripción |
+|---|---|
+| URL del servidor | `host:puerto` del servidor Archipelago |
+| Contraseña | Contraseña del servidor (si aplica) |
+| Nombre del bot en Archipelago | Con qué nombre se conecta el bot al servidor |
+
+### 2. Jugadores y Canales
+
+Tabla editable donde el organizador define qué canal de Twitch corresponde a qué jugador dentro de la partida:
+
+| Canal de Twitch | Jugador en Archipelago | Acciones |
+|---|---|---|
+| `streamer1` | `Mario` | ✏️ 🗑️ |
+| `streamer2` | `Link` | ✏️ 🗑️ |
+| `+ Agregar` | | |
+
+### 3. Recompensas y Costos
+
+Tabla de recompensas configurables individualmente:
+
+| Recompensa | Costo (bits) | Activada | Cooldown (min) |
+|---|---|---|---|
+| Hint aleatorio | 200 | ☑ | 5 |
+| Hint de ítem específico | 500 | ☑ | 10 |
+| Hint de ubicación específica | 400 | ☐ | 10 |
+| Enviar ítem directamente | 2000 | ☐ | 30 |
+
+> Cada fila es completamente editable en la interfaz. Se pueden agregar o quitar tipos de recompensa.
+
+### 4. Controles
+
+- **▶ Iniciar Bot** — Guarda la configuración y lanza el bot.
+- **⏹ Detener Bot** — Detiene el bot de forma segura.
+- **📋 Ver Log** — Muestra en tiempo real los hints y eventos ejecutados.
+
+---
+
+## Módulos del Sistema
+
+### `panel/` — Frontend de Configuración
+- `index.html` — Panel principal
+- `config.js` — Guarda y carga la configuración en `config.json`
+- `style.css` — Interfaz limpia y clara
+
+### `bot/` — Backend del Bot
+- `main.py` — Punto de entrada, lanza el bot con la config cargada
+- `twitch_client.py` — Manejo de eventos de bits/donaciones por canal
+- `archipelago_client.py` — Conexión y comandos al servidor Archipelago
+- `rewards.py` — Lógica de validación de costos, cooldowns y tipos
+
+### `config.json` — Archivo de Configuración
+Generado automáticamente por el panel. Ejemplo:
+```json
+{
+  "server": "archipelago.gg:12345",
+  "password": "",
+  "bot_name": "TwitchipelagoBot",
+  "players": [
+    { "twitch_channel": "streamer1", "archipelago_player": "Mario" },
+    { "twitch_channel": "streamer2", "archipelago_player": "Link" }
+  ],
+  "rewards": [
+    { "name": "hint_random",   "cost": 200, "enabled": true,  "cooldown_minutes": 5  },
+    { "name": "hint_item",     "cost": 500, "enabled": true,  "cooldown_minutes": 10 },
+    { "name": "send_item",     "cost": 2000,"enabled": false, "cooldown_minutes": 30 }
+  ]
+}
+```
+
+---
+
+## Plan de Desarrollo por Fases
+
+### Fase 1 — MVP (1 canal, hints básicos)
+- [ ] Bot que lee bits de un canal de Twitch
+- [ ] Conexión básica a servidor Archipelago
+- [ ] Ejecución de `!hint` aleatorio al recibir bits
+
+### Fase 2 — Multi-canal y Configuración
+- [ ] Soporte para N canales simultáneos
+- [ ] Mapa canal ↔ jugador funcional
+- [ ] Lectura de `config.json`
+
+### Fase 3 — Panel Web
+- [ ] HTML con formularios de configuración
+- [ ] Guardado de config.json desde el navegador
+- [ ] Botón para iniciar/detener el bot
+- [ ] Log en tiempo real de eventos
+
+### Fase 4 — Recompensas Avanzadas
+- [ ] Hint de ítem o ubicación específica (el chat escribe el nombre)
+- [ ] Envío directo de ítems (requiere admin en el servidor)
+- [ ] Sistema de cooldown por jugador y por tipo de recompensa
+
+### Fase 5 — Pulido y Entrega
+- [ ] Documentación de uso (guía de 5 pasos)
+- [ ] Empaquetado para Railway o como ejecutable local
+- [ ] Prueba en vivo con partida real
+
+---
+
+## Forma de Entrega
+
+| Opción | Descripción | Ideal para |
+|---|---|---|
+| **Railway (recomendada)** | El cliente hace deploy con un click, panel accesible desde URL pública | Cliente con cuenta Railway |
+| **Local** | El cliente abre `index.html` en su navegador y corre `main.py` | Cliente sin cuentas externas |
+| **Ejecutable (.exe)** | Todo empaquetado con `PyInstaller`, doble click para usar | Cliente completamente no técnico |
+
+---
+
+## Tecnologías
+
+| Componente | Tecnología |
+|---|---|
+| Bot | Python 3.11 + `twitchio` |
+| Conexión Archipelago | `websockets` + protocolo AP |
+| Panel Web | HTML + CSS + JavaScript vanilla |
+| Configuración | JSON (leído/escrito desde el panel) |
+| Deploy opcional | Railway + Dockerfile |
+
+---
+
+## Próximos Pasos
+
+1. Validar este diseño y ajustar costos/recompensas según preferencia del cliente.
+2. Iniciar desarrollo por **Fase 1 (MVP)**.
+3. Definir si la entrega será Railway, local o .exe.
