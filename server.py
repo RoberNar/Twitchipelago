@@ -20,7 +20,7 @@ from database import (
 )
 
 dist_folder = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'panel', 'dist')
-app = Flask(__name__, static_folder=dist_folder, static_url_path="/")
+app = Flask(__name__, static_folder=dist_folder)
 CORS(app, supports_credentials=True, origins=["http://localhost:5173", os.environ.get("FRONTEND_URL", ""), os.environ.get("BACKEND_URL", "")])
 
 # Llave secreta para firmar cookies de sesión
