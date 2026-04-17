@@ -42,8 +42,8 @@ async def validate_and_refresh_twitch_token(cfg: dict) -> str | None:
     - Si está vencido: intenta refrescarlo con el refresh_token y guarda los nuevos en la DB.
     - Si el refresh también falla: loguea el error con el link para generarlo y retorna None.
     """
-    access_token  = cfg.get("twitch_access_token", "").strip()
-    refresh_token = cfg.get("twitch_refresh_token", "").strip()
+    access_token  = cfg.get("twitch_access_token", "").strip() or os.environ.get("TWITCH_ACCESS_TOKEN", "").strip()
+    refresh_token = cfg.get("twitch_refresh_token", "").strip() or os.environ.get("TWITCH_REFRESH_TOKEN", "").strip()
     client_id     = cfg.get("twitch_client_id", "").strip() or os.environ.get("TWITCH_CLIENT_ID", "")
     client_secret = cfg.get("twitch_client_secret", "").strip() or os.environ.get("TWITCH_CLIENT_SECRET", "")
 
@@ -135,7 +135,7 @@ async def main():
         sys.exit(1)
 
     # Validar y refrescar token de Twitch antes de continuar
-    raw_token = cfg.get("twitch_access_token", "").strip()
+    raw_token = cfg.get("twitch_access_token", "").strip() or os.environ.get("TWITCH_ACCESS_TOKEN", "").strip()
     if not raw_token:
         logger.error(
             "❌ No hay Access Token de Twitch configurado.\n"
