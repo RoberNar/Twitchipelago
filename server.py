@@ -127,7 +127,7 @@ def auth_callback():
     state = request.args.get("state")
     error = request.args.get("error")
 
-    frontend_url = os.environ.get("FRONTEND_URL", "http://localhost:5173")
+    frontend_url = os.environ.get("FRONTEND_URL", "/")
 
     if error or not code:
         return redirect(f"{frontend_url}?auth_error={error or 'unknown'}")
