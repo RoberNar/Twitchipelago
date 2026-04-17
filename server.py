@@ -30,7 +30,7 @@ app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 app.config["SESSION_COOKIE_SECURE"] = False  # True en producción con HTTPS
 
 LOG_FILE = "bot.log"
-bot_process = None
+bot_processes = {}
 
 # Inicializar la base de datos al arrancar
 init_db()
@@ -247,14 +247,17 @@ def save_config():
 @app.route("/api/bot/start", methods=["POST"])
 @require_auth
 def start_bot():
-    global bot_process
-    if bot_process and bot_process.poll() is None:
-        return jsonify({"status": "error", "message": "El bot ya está corriendo."}), 400
+    global bot_processes
+    user_id = get_current_user_id()
+    proc = bot_processes.get(user_id)
+    if proc and proc.poll() is None:
+        return jsonify({"status": "error", "message": "El bot ya está corriendo para este usuario."}), 400
     try:
-        with open(LOG_FILE, "w", encoding="utf-8") as f:
-            f.write("--- Bot iniciado desde panel web ---\n")
-        bot_process = subprocess.Popen(
-            [sys.executable, "main.py"],
+        with open(LOG_FILE, "a", encoding="utf-8") as f:
+            f.write(f"--- Bot iniciado desde panel web para usuario {user_id} ---\n")
+        
+        bot_processes[user_id] = subprocess.Popen(
+            [sys.executable, "main.py", str(user_id)],
             cwd=os.path.dirname(os.path.abspath(__file__)),
             stdout=subprocess.DEVNULL,
             stderr=subprocess.STDOUT
@@ -266,14 +269,18 @@ def start_bot():
 @app.route("/api/bot/stop", methods=["POST"])
 @require_auth
 def stop_bot():
-    global bot_process
-    if not bot_process or bot_process.poll() is not None:
-        return jsonify({"status": "error", "message": "El bot no está corriendo."}), 400
+    global bot_processes
+    user_id = get_current_user_id()
+    proc = bot_processes.get(user_id)
+    if not proc or proc.poll() is not None:
+        return jsonify({"status": "ok", "message": "El bot ya está detenido."})
     try:
-        bot_process.kill()
-        bot_process = None
-        with open(LOG_FILE, "a", encoding="utf-8") as f:
-            f.write("--- Bot detenido desde panel web ---\n")
+        proc.terminate()
+        try:
+            proc.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            proc.kill()
+        del bot_processes[user_id]
         return jsonify({"status": "ok", "message": "Bot detenido."})
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
@@ -281,8 +288,13 @@ def stop_bot():
 @app.route("/api/bot/status", methods=["GET"])
 @require_auth
 def bot_status():
-    global bot_process
-    is_running = bot_process and bot_process.poll() is None
+    global bot_processes
+    user_id = get_current_user_id()
+    proc = bot_processes.get(user_id)
+    is_running = proc is not None and proc.poll() is None
+    
+    # Podríamos leer el bot.log, pero idealmente cada usuario tendría su log.
+    # Por simplicidad mantenemos uno glocal por ahora o el usuario lee los ultimos bots.
     return jsonify({"running": bool(is_running)})
 
 # ── Logs ──────────────────────────────────────────────────────────────────────

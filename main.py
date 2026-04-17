@@ -119,7 +119,9 @@ async def main():
     # Inicializar DB (crea tablas y migra config.json si es la primera vez)
     init_db()
 
-    cfg = load_config_from_db()
+    user_id = int(sys.argv[1]) if len(sys.argv) > 1 else 1
+
+    cfg = load_config_from_db(user_id)
 
     logger.info("=" * 55)
     logger.info("  🏝️  Twitchipelago Bot — Iniciando Multicanal")
