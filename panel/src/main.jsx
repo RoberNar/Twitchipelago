@@ -12,7 +12,7 @@ createRoot(document.getElementById('root')).render(
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<App />} />
-        <Route path="/tracker" element={<Tracker />} />
+        <Route path="/tracker/:port?" element={<Tracker />} />
         <Route path="/stats" element={<Stats />} />
         <Route path="/hints" element={<HintsWidget />} />
       </Routes>

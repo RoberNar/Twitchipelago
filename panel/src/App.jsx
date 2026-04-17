@@ -333,15 +333,14 @@ export default function App() {
                     <input type="text" value={config?.twitch?.bot_nick || ''} onChange={e => updateTwitch('bot_nick', e.target.value)}
                       className="w-full bg-slate-950/50 border border-slate-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-fuchsia-500 transition-all" placeholder="twitchipelagobot" />
                   </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider flex items-center gap-1"><Key size={12} /> Access Token</label>
-                    <input type="password" value={config?.twitch?.access_token || ''} onChange={e => updateTwitch('access_token', e.target.value)}
-                      className="w-full bg-slate-950/50 border border-slate-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-fuchsia-500 transition-all" />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider">Client ID</label>
-                    <input type="text" value={config?.twitch?.client_id || ''} onChange={e => updateTwitch('client_id', e.target.value)}
-                      className="w-full bg-slate-950/50 border border-slate-800 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-fuchsia-500 transition-all" />
+                  <div className="bg-slate-950/50 border border-slate-800 rounded-lg p-4">
+                    <p className="text-sm font-semibold text-fuchsia-400 flex items-center gap-2 mb-1">
+                      <Key size={14} /> Tokens protegidos
+                    </p>
+                    <p className="text-xs text-slate-400">
+                      El <strong>Access Token</strong> y <strong>Client ID</strong> ya no figuran en la interfaz por seguridad en vivo. 
+                      Ahora se gestionan automáticamente a través de tu inicio de sesión de Twitch y las Variables de Entorno en Railway.
+                    </p>
                   </div>
                 </div>
               )}
