@@ -340,9 +340,17 @@ class TwitchBot(commands.Bot):
                 interval = max(1, int(announcer.get("interval_minutes", 15)))
 
                 if announcer.get("enabled", False):
+                    import os
+                    base_url = os.environ.get("TWITCH_REDIRECT_URI", "").replace("/auth/callback", "")
+                    if not base_url:
+                        base_url = "https://twitchipelago-production.up.railway.app"
+                    
+                    ap_port = cfg.get("archipelago", {}).get("port", "")
+                    tracker_url = f"{base_url}/tracker/{ap_port}" if ap_port else f"{base_url}/tracker"
+
                     msg = (
                         "🚀 ¡Chequea cómo van los demás participantes de esta run "
-                        "y quién va ganando en: http://localhost:5173/tracker !"
+                        f"y quién va ganando en: {tracker_url} !"
                     )
                     logger.info("📢 Ejecutando Auto-Announcer en todos los canales...")
 

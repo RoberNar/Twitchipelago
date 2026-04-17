@@ -218,9 +218,9 @@ export default function App() {
               Panel
             </Link>
             <Link
-              to="/tracker"
+              to={config?.archipelago?.port ? `/tracker/${config.archipelago.port}` : "/tracker"}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
-                location.pathname === '/tracker'
+                location.pathname.startsWith('/tracker')
                   ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-900/40'
                   : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
               }`}
