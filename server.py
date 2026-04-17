@@ -246,6 +246,12 @@ def save_config():
 
 # ── Bot Control (requiere autenticación) ──────────────────────────────────────
 
+def _read_process_output(user_id):
+    proc = bot_processes.get(user_id)
+    if proc and proc.stdout:
+        return proc.stdout.read().decode("utf-8", errors="replace")
+    return ""
+
 @app.route("/api/bot/start", methods=["POST"])
 @require_auth
 def start_bot():
@@ -261,9 +267,17 @@ def start_bot():
         bot_processes[user_id] = subprocess.Popen(
             [sys.executable, "main.py", str(user_id)],
             cwd=os.path.dirname(os.path.abspath(__file__)),
-            stdout=subprocess.DEVNULL,
+            stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT
         )
+        
+        # Check for early termination
+        import time
+        time.sleep(0.5)
+        if bot_processes[user_id].poll() is not None:
+            output = _read_process_output(user_id)
+            return jsonify({"status": "error", "message": f"El bot terminó inesperadamente: {output}"}), 500
+            
         return jsonify({"status": "ok", "message": "Bot iniciado exitosamente"})
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
@@ -298,6 +312,17 @@ def bot_status():
     # Podríamos leer el bot.log, pero idealmente cada usuario tendría su log.
     # Por simplicidad mantenemos uno glocal por ahora o el usuario lee los ultimos bots.
     return jsonify({"running": bool(is_running)})
+
+@app.route("/api/bot/logs", methods=["GET"])
+@require_auth
+def get_bot_logs():
+    if not os.path.exists(LOG_FILE):
+        return jsonify({"logs": ""})
+    try:
+        with open(LOG_FILE, "r", encoding="utf-8") as f:
+            return jsonify({"logs": "".join(f.readlines()[-100:])})
+    except Exception as e:
+        return jsonify({"logs": f"Error leyendo el log: {e}"})
 
 # ── Logs ──────────────────────────────────────────────────────────────────────
 
@@ -428,6 +453,4 @@ def serve_react(path):
 
 # ─────────────────────────────────────────────────────────────────────────────────────
 
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug=False)
+
