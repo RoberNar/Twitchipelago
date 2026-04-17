@@ -180,11 +180,13 @@ async def main():
         sys.exit(1)
 
     # 2. Inicializar el gestor de recompensas
+    logger.info("Initializing RewardManager...")
     reward_manager = RewardManager(
         rewards_config=cfg.get("rewards_config", [])
     )
 
     # 3. Arrancar el bot de Twitch
+    logger.info("Initializing TwitchBot...")
     bot = TwitchBot(
         token=twitch_token,
         client_id=cfg["twitch_client_id"],
@@ -196,8 +198,10 @@ async def main():
     )
 
     try:
-        logger.info("Iniciando bot de Twitch en canales: " + ", ".join(connected_channels))
+        logger.info(f"Bot de Twitch preparado. Canales: {', '.join(connected_channels)}")
+        logger.info("Llamando a bot.start()...")
         await bot.start()
+        logger.info("bot.start() ha retornado (esto no debería pasar a menos que se cierre).")
     except KeyboardInterrupt:
         logger.info("Deteniendo bot...")
     except Exception as e:
