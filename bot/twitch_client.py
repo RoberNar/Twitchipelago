@@ -23,6 +23,8 @@ class TwitchBot(commands.Bot):
         channels: list[str],
         ap_clients_map: dict[str, ArchipelagoClient],
         reward_manager: RewardManager,
+        user_id: int,
+        ap_port: int,
     ):
         super().__init__(
             token=token,
@@ -33,6 +35,8 @@ class TwitchBot(commands.Bot):
         self.ap_clients_map = ap_clients_map
         self.reward_manager = reward_manager
         self.channels_list = [c.lower() for c in channels]
+        self.user_id = user_id
+        self.ap_port = ap_port
 
     # ──────────────────────────────────────────────────────────────────
     # Eventos de conexión
@@ -324,10 +328,11 @@ class TwitchBot(commands.Bot):
                     logger.warning(f"⚠️ No se pudieron resolver los avatars de Twitch: {e}")
 
             try:
-                with open("public_state.json", "w", encoding="utf-8") as f:
+                file_name = f"public_state_{self.ap_port}.json" if self.ap_port else "public_state.json"
+                with open(file_name, "w", encoding="utf-8") as f:
                     json.dump(state, f, ensure_ascii=False)
             except Exception as e:
-                logger.error(f"Falla al exportar public_state.json: {e}")
+                logger.error(f"Falla al exportar {file_name}: {e}")
 
             await asyncio.sleep(5)
 
@@ -335,7 +340,7 @@ class TwitchBot(commands.Bot):
         """Anuncia periódicamente el link del Tracker en todos los canales."""
         while True:
             try:
-                cfg = get_config_as_json()
+                cfg = get_config_as_json(user_id=self.user_id)
                 announcer = cfg.get("announcer", {})
                 interval = max(1, int(announcer.get("interval_minutes", 15)))
 

@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { Trophy, CheckCircle2, Wifi, WifiOff, Gamepad2 } from 'lucide-react';
 
 export default function Tracker() {
+    const { port } = useParams();
     const API = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? "" : "http://localhost:5000");
     const [trackerState, setTrackerState] = useState({});
     const [error, setError] = useState(null);
@@ -10,7 +12,8 @@ export default function Tracker() {
     useEffect(() => {
         const fetchState = async () => {
             try {
-                const res = await axios.get(`${API}/api/tracker`);
+                const url = port ? `${API}/api/tracker?port=${port}` : `${API}/api/tracker`;
+                const res = await axios.get(url);
                 console.log("Tracker Data:", res.data); // Debugging display info
                 setTrackerState(res.data);
                 setError(null);

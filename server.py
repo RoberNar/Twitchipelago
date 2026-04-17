@@ -231,11 +231,13 @@ def save_config():
     data = request.json
     try:
         save_config_from_json(data, user_id=user_id)
-        # Limpiar el tracker al guardar nueva config, para que no muestre datos de la run anterior
+        # Limpiar el tracker específico de este puerto al guardar nueva config
         import json as _json
         try:
-            with open("public_state.json", "w", encoding="utf-8") as f:
-                _json.dump({}, f)
+            ap_port = data.get("archipelago", {}).get("port")
+            if ap_port:
+                with open(f"public_state_{ap_port}.json", "w", encoding="utf-8") as f:
+                    _json.dump({}, f)
         except Exception:
             pass
         return jsonify({"status": "ok", "message": "Configuración guardada exitosamente"})
@@ -315,10 +317,12 @@ def get_logs():
 @app.route("/api/tracker", methods=["GET"])
 def get_tracker_state():
     import json
-    if not os.path.exists("public_state.json"):
+    port = request.args.get("port", "").strip()
+    filename = f"public_state_{port}.json" if port else "public_state.json"
+    if not os.path.exists(filename):
         return jsonify({})
     try:
-        with open("public_state.json", "r", encoding="utf-8") as f:
+        with open(filename, "r", encoding="utf-8") as f:
             return jsonify(json.load(f))
     except Exception as e:
         return jsonify({"error": str(e)}), 500

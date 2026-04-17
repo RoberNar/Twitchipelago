@@ -191,6 +191,8 @@ async def main():
         channels=connected_channels,
         ap_clients_map=ap_clients,
         reward_manager=reward_manager,
+        user_id=user_id,
+        ap_port=cfg["ap_port"],
     )
 
     try:
