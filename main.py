@@ -25,7 +25,6 @@ logging.basicConfig(
     datefmt="%H:%M:%S",
     handlers=[
         logging.StreamHandler(sys.stdout),
-        logging.FileHandler("bot.log", mode="a", encoding="utf-8")
     ],
 )
 logger = logging.getLogger("main")
@@ -193,7 +192,7 @@ async def main():
         channels=connected_channels,
         ap_clients_map=ap_clients,
         reward_manager=reward_manager,
-        user_id=user_id,
+        db_user_id=user_id,
         ap_port=cfg["ap_port"],
     )
 

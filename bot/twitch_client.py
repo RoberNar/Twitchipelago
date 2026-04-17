@@ -23,7 +23,7 @@ class TwitchBot(commands.Bot):
         channels: list[str],
         ap_clients_map: dict[str, ArchipelagoClient],
         reward_manager: RewardManager,
-        user_id: int,
+        db_user_id: int,
         ap_port: int,
     ):
         super().__init__(
@@ -35,7 +35,7 @@ class TwitchBot(commands.Bot):
         self.ap_clients_map = ap_clients_map
         self.reward_manager = reward_manager
         self.channels_list = [c.lower() for c in channels]
-        self.user_id = user_id
+        self.db_user_id = db_user_id
         self.ap_port = ap_port
 
     # ──────────────────────────────────────────────────────────────────
@@ -340,7 +340,7 @@ class TwitchBot(commands.Bot):
         """Anuncia periódicamente el link del Tracker en todos los canales."""
         while True:
             try:
-                cfg = get_config_as_json(user_id=self.user_id)
+                cfg = get_config_as_json(user_id=self.db_user_id)
                 announcer = cfg.get("announcer", {})
                 interval = max(1, int(announcer.get("interval_minutes", 15)))
 
