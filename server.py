@@ -257,29 +257,44 @@ def _read_process_output(user_id):
 def start_bot():
     global bot_processes
     user_id = get_current_user_id()
+    print(f"--- [START_BOT] Iniciando para usuario {user_id} ---")
+    
     proc = bot_processes.get(user_id)
     if proc and proc.poll() is None:
+        print(f"--- [START_BOT] El bot ya está corriendo para usuario {user_id} (PID {proc.pid}) ---")
         return jsonify({"status": "error", "message": "El bot ya está corriendo para este usuario."}), 400
+    
     try:
+        print(f"--- [START_BOT] Escribiendo marcador en {LOG_FILE} ---")
         with open(LOG_FILE, "a", encoding="utf-8") as f:
             f.write(f"--- Bot iniciado desde panel web para usuario {user_id} ---\n")
         
+        print(f"--- [START_BOT] Ejecutando subprocess: {sys.executable} main.py {user_id} ---")
         bot_processes[user_id] = subprocess.Popen(
             [sys.executable, "main.py", str(user_id)],
             cwd=os.path.dirname(os.path.abspath(__file__)),
-            stdout=subprocess.PIPE,
+            stdout=open(LOG_FILE, 'a'),
             stderr=subprocess.STDOUT
         )
         
+        pid = bot_processes[user_id].pid
+        print(f"--- [START_BOT] Subproceso lanzado con PID: {pid} ---")
+        
         # Check for early termination
         import time
+        print(f"--- [START_BOT] Esperando 0.5s para verificar estabilidad ---")
         time.sleep(0.5)
-        if bot_processes[user_id].poll() is not None:
+        
+        return_code = bot_processes[user_id].poll()
+        if return_code is not None:
+            print(f"--- [START_BOT] ERROR: El subproceso terminó inmediatamente con código {return_code} ---")
             output = _read_process_output(user_id)
-            return jsonify({"status": "error", "message": f"El bot terminó inesperadamente: {output}"}), 500
+            return jsonify({"status": "error", "message": f"El bot terminó inesperadamente (código {return_code}): {output}"}), 500
             
+        print(f"--- [START_BOT] Bot iniciado correctamente (PID {pid}) ---")
         return jsonify({"status": "ok", "message": "Bot iniciado exitosamente"})
     except Exception as e:
+        print(f"--- [START_BOT] EXCEPCIÓN: {str(e)} ---")
         return jsonify({"status": "error", "message": str(e)}), 500
 
 @app.route("/api/bot/stop", methods=["POST"])
